@@ -1,0 +1,123 @@
+unit Unit1;
+
+interface
+
+uses
+  Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
+  Dialogs, StdCtrls, ACBrBase, ACBrDFe, ACBrNFe, ACBrDFeReport,
+  ACBrDFeDANFeReport, ACBrNFeDANFEClass, ACBrDANFCeFortesFrA4,
+  ACBrNFeDANFeRLClass, ACBrNFeDANFEFR, ACBrDANFCeFortesFr;
+
+type
+  TForm1 = class(TForm)
+    ACBrNFe1: TACBrNFe;
+    Button1: TButton;
+    Memo1: TMemo;
+    Edit1: TEdit;
+    OpenDialog1: TOpenDialog;
+    Button2: TButton;
+    nfe: TACBrNFeDANFeRL;
+    ACBrNFeDANFCeFortes1: TACBrNFeDANFCeFortes;
+    procedure Button1Click(Sender: TObject);
+    procedure Edit1Change(Sender: TObject);
+    procedure Button2Click(Sender: TObject);
+  private
+    { Private declarations }
+  public
+    { Public declarations }
+  end;
+
+var
+  Form1: TForm1;
+
+implementation
+
+{$R *.dfm}
+
+procedure TForm1.Button1Click(Sender: TObject);
+var
+  i: Integer;
+begin
+  //Xml vazio
+  if Edit1.Text = '' then
+  begin
+  ShowMessage('Selecione o XML!!');
+  exit;
+  end
+  else
+  ACBrNFe1.NotasFiscais.Clear;
+  ACBrNFe1.NotasFiscais.LoadFromFile(Edit1.Text);
+  // Certifique-se de verificar se há notas fiscais antes de acessá-las
+  if ACBrNFe1.NotasFiscais.Count > 0 then
+  begin
+   // Acessando informações da primeira nota fiscal
+    memo1.Lines.Add('------------- NFE DADOS ---------');
+    memo1.Lines.Add('modelo:' + IntToStr(ACBrNFe1.NotasFiscais.Items[0].NFe.Ide.modelo));
+    memo1.Lines.Add('Chave: ' + ACBrNFe1.NotasFiscais.Items[0].NFe.infNFe.ID); // chave
+    memo1.Lines.Add('Número do Protocolo: ' + ACBrNFe1.NotasFiscais.Items[0].NFe.procNFe.nProt); // número do protocolo
+    memo1.Lines.Add('Natureza: ' + ACBrNFe1.NotasFiscais.Items[0].NFe.Ide.natOp); // natureza
+    memo1.Lines.Add('Número da Nota: ' + IntToStr(ACBrNFe1.NotasFiscais.Items[0].NFe.Ide.nNF)); // número da nota
+    memo1.Lines.Add('Data de Emissão: ' + DateToStr(ACBrNFe1.NotasFiscais.Items[0].NFe.Ide.dEmi)); // data de emissão
+    memo1.Lines.Add('Data de Saída/Entrada: ' + DateToStr(ACBrNFe1.NotasFiscais.Items[0].NFe.Ide.dSaiEnt)); // data de saída/entrada
+    memo1.Lines.Add('Valor Total Produtos: ' + FormatFloat('0.00',ACBrNFe1.NotasFiscais.Items[0].NFe.Total.ICMSTot.vProd));// nfe produto
+    memo1.Lines.Add('Valor NFE Desconto: ' + FormatFloat('0.00',ACBrNFe1.NotasFiscais.Items[0].NFe.Total.ICMSTot.vDesc));// nfe deconto
+    memo1.Lines.Add('Valor Total NFE: ' + FormatFloat('0.00',ACBrNFe1.NotasFiscais.Items[0].NFe.Total.ICMSTot.vNF));// nfe total
+    // Emitente
+    memo1.Lines.Add('------------- NFE EMITENTE ------');
+    memo1.Lines.Add('Cpf/Cnpj: ' + ACBrNFe1.NotasFiscais.Items[0].NFe.Emit.CNPJCPF);
+    memo1.Lines.Add('Nome: ' + ACBrNFe1.NotasFiscais.Items[0].NFe.Emit.xNome);
+    memo1.Lines.Add('Fantasia: ' + ACBrNFe1.NotasFiscais.Items[0].NFe.Emit.xFant);
+    memo1.Lines.Add('IE: ' + ACBrNFe1.NotasFiscais.Items[0].NFe.Emit.IE);
+    // Endereço
+    memo1.Lines.Add('------------ NFE EMITENETE ENDEREÇO ---------');
+    memo1.Lines.Add('Logradouro: ' + ACBrNFe1.NotasFiscais.Items[0].NFe.Emit.EnderEmit.xLgr);
+    memo1.Lines.Add('Bairro: ' + ACBrNFe1.NotasFiscais.Items[0].NFe.Emit.EnderEmit.xBairro);
+    memo1.Lines.Add('Municipo: ' + ACBrNFe1.NotasFiscais.Items[0].NFe.Emit.EnderEmit.xMun);
+    memo1.Lines.Add('Pais: ' + ACBrNFe1.NotasFiscais.Items[0].NFe.Emit.EnderEmit.xPais);
+    // Acessando informações dos produtos
+    memo1.Lines.Add('------------- NFE PRODUTOS ------');
+    for i := 0 to ACBrNFe1.NotasFiscais.Items[0].NFe.Det.Count - 1 do
+    begin
+      memo1.Lines.Add('Item: ' + IntToStr(i + 1));
+      memo1.Lines.Add('Código do Produto: ' + ACBrNFe1.NotasFiscais.Items[0].NFe.Det.Items[i].Prod.cProd);
+      memo1.Lines.Add('Código de Barras: ' + ACBrNFe1.NotasFiscais.Items[0].NFe.Det.Items[i].Prod.cEAN);
+      memo1.Lines.Add('Descrição do Produto: ' + ACBrNFe1.NotasFiscais.Items[0].NFe.Det.Items[i].Prod.xProd);
+      memo1.Lines.Add('NCM: ' + ACBrNFe1.NotasFiscais.Items[0].NFe.Det.Items[i].Prod.NCM);
+      memo1.Lines.Add('Cfop:' + ACBrNFe1.NotasFiscais.Items[0].NFe.Det.Items[I].Prod.CFOP);
+      memo1.Lines.Add('Unidade: ' + ACBrNFe1.NotasFiscais.Items[0].NFe.Det.Items[i].Prod.uCom);
+      memo1.Lines.Add('Quantidade: ' + FloatToStr(ACBrNFe1.NotasFiscais.Items[0].NFe.Det.Items[i].Prod.qCom));
+      memo1.Lines.Add('Desconto: ' + FloatToStr(ACBrNFe1.NotasFiscais.Items[0].NFe.Det.Items[i].Prod.vDesc));
+      memo1.Lines.Add('Valor Unitário: ' + FormatFloat('0.00', ACBrNFe1.NotasFiscais.Items[0].NFe.Det.Items[I].Prod.vUnCom));
+      memo1.Lines.Add('Valor Total: ' + FormatFloat('0.00', ACBrNFe1.NotasFiscais.Items[0].NFe.Det.Items[I].Prod.vProd));
+    end;
+  end
+  else
+  begin
+    memo1.Lines.Add('Não foram encontradas notas fiscais no arquivo.');
+  end;
+end;
+
+procedure TForm1.Button2Click(Sender: TObject);
+begin
+    ACBrNFe1.NotasFiscais.Clear;
+    ACBrNFe1.NotasFiscais.LoadFromFile(Edit1.Text);
+    nfe.ACBrNFe := ACBrNFe1;
+  if ACBrNFe1.NotasFiscais.Items[0].NFe.Ide.modelo = 65 then
+  begin
+    ShowMessage('Modelo de XML 65!');  //Modelo 65 NFCe
+     ACBrNFeDANFCeFortes1.ACBrNFe := ACBrNFe1;
+     ACBrNFeDANFCeFortes1.ImprimirDANFE;
+     exit;
+  end
+    else
+      nfe.Sistema := 'O Simples Sistemas';
+      ACBrNFe1.NotasFiscais.Imprimir;
+end;
+
+procedure TForm1.Edit1Change(Sender: TObject);
+begin
+opendialog1.Execute;
+Edit1.Text := Opendialog1.FileName;
+end;
+
+end.
